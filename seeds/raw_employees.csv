@@ -1,0 +1,4 @@
+emp_id,first_name,last_name,age,department
+1,Alice,Smith,21,Engineering
+2,Bob,Jones,,Sales
+3,Charlie,Brown,32,Engineering

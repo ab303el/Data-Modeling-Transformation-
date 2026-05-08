@@ -1,0 +1,7 @@
+models: 
+  - name: dim_order_date
+    columns:
+      - name: order_date_id
+        tests:
+          - not_null
+          - unique 

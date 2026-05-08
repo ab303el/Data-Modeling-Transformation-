@@ -1,0 +1,31 @@
+version: 2
+
+models: 
+  - name: stg_employees
+    description : "a cleaned up list of our employees"
+    columns: 
+      - name: employee_id
+        tests: 
+          - unique
+          - not_null
+      - name: age
+        description: "employee age in years"
+        tests:
+          # This test will FAIL if there are any nulls. 
+          # Use it if you expect 100% data completion.
+          - not_null
+  - name: stg_product
+    description: "a cleaned up list of products"
+    columns:
+      - name: prod_id
+        tests:
+          - unique
+          - not_null
+      - name: stock
+        description: "check for boolean state or null"
+        tests:
+          - not_null
+          # Note: 'boolean' is not a built-in dbt test. 
+          # Use 'accepted_values' or a package like dbt-expectations .
+          - accepted_values:
+              values: [True, False]

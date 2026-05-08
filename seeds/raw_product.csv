@@ -1,0 +1,4 @@
+prod_id,prod_category,prod_name,stock
+1,electronics,laptop , True
+2,electronics,mouse,False
+3,electronics,keyboard,True
