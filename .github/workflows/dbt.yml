@@ -25,20 +25,21 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+    # These environment variables are available to all steps
     env:
-      DB_HOST: '127.0.0.1'
-      DB_USER: 'test_user'
-      DB_PASSWORD: 'test_password'
-      DB_PORT: '5432'
-      DB_NAME: 'test_db'
-      DB_SCHEMA: 'public'
+          DBT_ENV_SECRET_HOST: '127.0.0.1'
+          DBT_ENV_SECRET_USER: 'ab303el'
+          DBT_ENV_SECRET_PASSWORD: 'ABEL'
+          DBT_ENV_SECRET_PORT: 5432
+          DBT_ENV_SECRET_DBNAME: 'my_company'
+          DBT_ENV_SECRET_SCHEMA: 'employees'
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v5  # FIXED: Changed from with-python to setup-python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
@@ -49,23 +50,23 @@ jobs:
 
       - name: Install dbt Packages
         run: dbt deps
-
       - name: Provision dbt Profile
         run: |
           mkdir -p ~/.dbt
-          echo "my_company:" > ~/.dbt/profiles.yml
-          echo "  target: dev" >> ~/.dbt/profiles.yml
-          echo "  outputs:" >> ~/.dbt/profiles.yml
-          echo "    dev:" >> ~/.dbt/profiles.yml
-          echo "      type: postgres" >> ~/.dbt/profiles.yml
-          # FIXED: Swapped out ${{ env.xxx }} syntax for proper bash variable references
-          echo "      host: '$DB_HOST'" >> ~/.dbt/profiles.yml
-          echo "      user: '$DB_USER'" >> ~/.dbt/profiles.yml
-          echo "      password: '$DB_PASSWORD'" >> ~/.dbt/profiles.yml
-          echo "      port: $DB_PORT" >> ~/.dbt/profiles.yml
-          echo "      dbname: '$DB_NAME'" >> ~/.dbt/profiles.yml
-          echo "      schema: '$DB_SCHEMA'" >> ~/.dbt/profiles.yml
-          echo "      threads: 1" >> ~/.dbt/profiles.yml
+          cat << EOF > ~/.dbt/profiles.yml
+          my_company:
+            target: dev
+            outputs:
+              dev:
+                type: postgres
+                host: ${{ env.DB_HOST }}
+                user: ${{ env.DB_USER }}
+                password: ${{ env.DB_PASSWORD }}
+                port: 5432  # Hardcode this here for CI since the service is on 5432
+                dbname: ${{ env.DB_NAME }}
+                schema: ${{ env.DB_SCHEMA }}
+                threads: 1
+          EOF
 
       - name: Verify Connection (Debug)
         run: dbt debug --target dev
