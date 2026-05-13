@@ -28,5 +28,4 @@ models:
           # Note: 'boolean' is not a built-in dbt test. 
           # Use 'accepted_values' or a package like dbt-expectations .
           - accepted_values:
-              arguments:
-                values: [True, False]
+              values: [True, False]
