@@ -45,7 +45,7 @@ jobs:
       - name: Provision dbt Profile
         run: |
           mkdir -p ~/.dbt
-          cat << EOF > ~/.dbt/profiles.yml
+          cat << 'EOF' > ~/.dbt/profiles.yml
           my_company:
             outputs:
               dev:
@@ -59,6 +59,7 @@ jobs:
                 threads: 1
             target: dev
           EOF
+
 
       - name: Verify Connection (Debug)
         run: dbt debug --target dev
