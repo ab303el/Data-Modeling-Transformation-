@@ -2,36 +2,48 @@ name: dbt CI/CD Automation
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   dbt_run:
-    name: Run and Test dbt Models
     runs-on: ubuntu-latest
 
-    # Correct way to access the secret context object
+    # Spin up a temporary local Postgres database container inside the runner
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        # Wait until postgres is healthy before starting the job steps
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    # Match these hardcoded credentials to the service container above
     env:
-      DBT_ENV_SECRET_HOST: ${{ secrets.DB_HOST }}
-      DBT_ENV_SECRET_USER: ${{ secrets.DB_USER }}
-      DBT_ENV_SECRET_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      DBT_ENV_SECRET_PORT: 5432
-      DBT_ENV_SECRET_DBNAME: ${{ secrets.DB_NAME }}
-      DBT_ENV_SECRET_SCHEMA: ${{ secrets.DB_SCHEMA }}
+      DB_HOST: '127.0.0.1'
+      DB_USER: 'test_user'
+      DB_PASSWORD: 'test_password'
+      DB_PORT: '5432'
+      DB_NAME: 'test_db'
+      DB_SCHEMA: 'public'
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # FIXED: Changed with-python to setup-python
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/with-python@v5
         with:
           python-version: '3.11'
-          
 
       - name: Install Dependencies
         run: |
@@ -41,7 +53,6 @@ jobs:
       - name: Install dbt Packages
         run: dbt deps
 
-        # NEW STEP: Generates the missing profile directory and target connection file
       - name: Provision dbt Profile
         run: |
           mkdir -p ~/.dbt
@@ -50,18 +61,17 @@ jobs:
           echo "  outputs:" >> ~/.dbt/profiles.yml
           echo "    dev:" >> ~/.dbt/profiles.yml
           echo "      type: postgres" >> ~/.dbt/profiles.yml
-          echo "      host: '${{ secrets.DB_HOST }}'" >> ~/.dbt/profiles.yml
-          echo "      user: '${{ secrets.DB_USER }}'" >> ~/.dbt/profiles.yml
-          echo "      password: '${{ secrets.DB_PASSWORD }}'" >> ~/.dbt/profiles.yml
-          echo "      port: ${{ secrets.DB_PORT || 5432 }}" >> ~/.dbt/profiles.yml
-          echo "      dbname: '${{ secrets.DB_NAME }}'" >> ~/.dbt/profiles.yml
-          echo "      schema: '${{ secrets.DB_SCHEMA }}'" >> ~/.dbt/profiles.yml
+          echo "      host: '${{ env.DB_HOST }}'" >> ~/.dbt/profiles.yml
+          echo "      user: '${{ env.DB_USER }}'" >> ~/.dbt/profiles.yml
+          echo "      password: '${{ env.DB_PASSWORD }}'" >> ~/.dbt/profiles.yml
+          echo "      port: ${{ env.DB_PORT }}" >> ~/.dbt/profiles.yml
+          echo "      dbname: '${{ env.DB_NAME }}'" >> ~/.dbt/profiles.yml
+          echo "      schema: '${{ env.DB_SCHEMA }}'" >> ~/.dbt/profiles.yml
           echo "      threads: 1" >> ~/.dbt/profiles.yml
-
-
 
       - name: Verify Connection (Debug)
         run: dbt debug --target dev
 
+      # Note: This will succeed but say "0 models found" unless you put your raw seeds/data tables in the repository
       - name: Build and Test Models
         run: dbt build --target dev
