@@ -47,6 +47,9 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install dbt-core dbt-postgres
+          pip install --upgrade pip
+          # Force both to 1.8.x or 1.9.x to ensure perfect compatibility
+          pip install dbt-core==1.8.0 dbt-postgres==1.8.0
 
       - name: Install dbt Packages
         run: dbt deps
