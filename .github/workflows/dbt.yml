@@ -59,12 +59,12 @@ jobs:
             outputs:
               dev:
                 type: postgres
-                host: ${{ env.DB_HOST }}
-                user: ${{ env.DB_USER }}
-                password: ${{ env.DB_PASSWORD }}
-                port: 5432  # Hardcode this here for CI since the service is on 5432
-                dbname: ${{ env.DB_NAME }}
-                schema: ${{ env.DB_SCHEMA }}
+                host: "${DBT_ENV_SECRET_HOST}"
+                user: "${DBT_ENV_SECRET_USER}"
+                password: "${DBT_ENV_SECRET_PASSWORD}"
+                port: 5432
+                dbname: "${DBT_ENV_SECRET_DBNAME}"
+                schema: "${DBT_ENV_SECRET_SCHEMA}"
                 threads: 1
           EOF
 
