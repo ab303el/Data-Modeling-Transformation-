@@ -41,6 +41,25 @@ jobs:
       - name: Install dbt Packages
         run: dbt deps
 
+        # NEW STEP: Generates the missing profile directory and target connection file
+      - name: Provision dbt Profile
+        run: |
+          mkdir -p ~/.dbt
+          cat << EOF > ~/.dbt/profiles.yml
+          my_company:
+            outputs:
+              dev:
+                type: postgres
+                host: "{{ env_var('DBT_ENV_SECRET_HOST') }}"
+                user: "{{ env_var('DBT_ENV_SECRET_USER') }}"
+                password: "{{ env_var('DBT_ENV_SECRET_PASSWORD') }}"
+                port: {{ env_var('DBT_ENV_SECRET_PORT') | int }}
+                dbname: "{{ env_var('DBT_ENV_SECRET_DBNAME') }}"
+                schema: "{{ env_var('DBT_ENV_SECRET_SCHEMA') }}"
+                threads: 1
+            target: dev
+          EOF
+
       - name: Verify Connection (Debug)
         run: dbt debug --target dev
 
