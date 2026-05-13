@@ -1,0 +1,48 @@
+name: dbt CI/CD Automation
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  dbt_run:
+    name: Run and Test dbt Models
+    runs-on: ubuntu-latest
+
+    # Correct way to access the secret context object
+    env:
+      DBT_ENV_SECRET_HOST: ${{ secrets.DB_HOST }}
+      DBT_ENV_SECRET_USER: ${{ secrets.DB_USER }}
+      DBT_ENV_SECRET_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DBT_ENV_SECRET_PORT: 5432
+      DBT_ENV_SECRET_DBNAME: ${{ secrets.DB_NAME }}
+      DBT_ENV_SECRET_SCHEMA: ${{ secrets.DB_SCHEMA }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # FIXED: Changed with-python to setup-python
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install dbt-core dbt-postgres
+
+      - name: Install dbt Packages
+        run: dbt deps
+
+      - name: Verify Connection (Debug)
+        run: dbt debug --target dev
+
+      - name: Build and Test Models
+        run: dbt build --target dev

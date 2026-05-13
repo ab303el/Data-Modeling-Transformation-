@@ -8,7 +8,7 @@ renamed as (
         employee_id,
         full_name ,
         department ,
-        age
+        age::int as age
     FROM empl
 )
 

@@ -1,0 +1,16 @@
+version: 2
+
+models:
+  - name: dim_product
+    columns:
+      - name: product_id
+        tests: 
+          - not_null
+          - unique
+      - name: in_stock
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+
+          

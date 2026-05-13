@@ -9,7 +9,7 @@ renamed as (
         prod_id as product_id ,
         category as product_category ,
         product_name ,
-        stock as in_stock
+        stock::bool as in_stock
     FROM product
 ) 
 SELECT * FROM renamed
