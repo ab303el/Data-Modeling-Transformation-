@@ -42,7 +42,15 @@ jobs:
         run: dbt deps
 
         # NEW STEP: Generates the missing profile directory and target connection file
-      - name: Provision dbt Profile
+      - name: Provision dbt Profile    
+        # Injecting the environment keys directly into this step's shell environment
+        env:
+          DBT_ENV_SECRET_HOST: ${{ secrets.DB_HOST }}
+          DBT_ENV_SECRET_USER: ${{ secrets.DB_USER }}
+          DBT_ENV_SECRET_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DBT_ENV_SECRET_PORT: ${{ secrets.DB_PORT || '5432' }} # Fallback to standard 5432 if missing
+          DBT_ENV_SECRET_DBNAME: ${{ secrets.DB_NAME }}
+          DBT_ENV_SECRET_SCHEMA: ${{ secrets.DB_SCHEMA }}
         run: |
           mkdir -p ~/.dbt
           cat << 'EOF' > ~/.dbt/profiles.yml
