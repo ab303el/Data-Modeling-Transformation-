@@ -17,8 +17,8 @@ renamed as(
         s.sale_id ,
         e.employee_id ,
         cast(d.order_date_id as date) as order_date_id ,
-        s.price ,
-        pr.product_id
+        s.price::int as price ,
+        coalesce(pr.product_id , -1) as product_id
     FROM sales s 
         LEFT JOIN employees e on s.employee_id = e.employee_id
         LEFT JOIN dates d on s.date_of_order = d.dates

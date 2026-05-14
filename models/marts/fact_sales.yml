@@ -7,5 +7,15 @@ models:
         tests: 
           - not_null
           - unique
+      - name: employee_id
+        tests:
+          - not_null
+      - name: order_date_id
+        tests: 
+          - not_null
+          - unique
+      - name: product_id
+        tests:
+          - not_null
 
 

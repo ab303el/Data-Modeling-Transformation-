@@ -10,7 +10,7 @@ renamed as (
         employee_id,
         sale_date as date_of_order,
         amount  as price,
-        nullif(prod_id::text , '')::int as product_id
+        coalesce(prod_id , -1)::int as product_id
 
     FROM source_data
 )

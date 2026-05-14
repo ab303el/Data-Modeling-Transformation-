@@ -29,3 +29,15 @@ models:
           # Use 'accepted_values' or a package like dbt-expectations .
           - accepted_values:
               values: [True, False]
+  - name: stg_sales
+    description: "check for null"
+    columns:
+      - name: product_id
+        tests:
+          - not_null
+      - name: sale_id
+        tests:
+          - not_null  
+      - name: employee_id
+        tests:
+          - not_null
