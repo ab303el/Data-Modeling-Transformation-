@@ -75,4 +75,4 @@ jobs:
         run: dbt debug --target dev
 
       - name: Build and Test Models
-        run: dbt build --target dev
+        run: dbt build --target dev --log-format text --no-use-colors
