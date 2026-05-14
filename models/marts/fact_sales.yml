@@ -1,0 +1,11 @@
+version: 2
+
+models:
+  - name: fact_sales
+    columns: 
+      - name: sale_id
+        tests: 
+          - not_null
+          - unique
+
+
